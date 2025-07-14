@@ -1,0 +1,41 @@
+#search_books_by_title
+-- Enable pg_trgm extension for similarity and fuzzy search
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- Create GIN index on title using trigram operations
+CREATE INDEX IF NOT EXISTS books_title_trgm_idx
+ON books
+USING GIN (title gin_trgm_ops);
+
+-- Add fts (full text search) column to books table
+ALTER TABLE books
+ADD COLUMN IF NOT EXISTS fts tsvector
+GENERATED ALWAYS AS (
+  to_tsvector('english', coalesce(title, ''))
+) STORED;
+
+-- Create GIN index on the fts column
+CREATE INDEX IF NOT EXISTS books_fts_idx
+ON books
+USING GIN (fts);
+
+-- Create search function
+CREATE OR REPLACE FUNCTION search_books_by_title(search_text TEXT)
+RETURNS SETOF books AS $$
+BEGIN
+  RETURN QUERY
+  SELECT *
+  FROM books
+  WHERE
+    (
+      similarity(title, search_text) > 0.1
+      OR title ILIKE '%' || search_text || '%'
+      OR fts @@ to_tsquery('english', replace(search_text, ' ', ' & '))
+    )
+  ORDER BY
+    GREATEST(
+      similarity(title, search_text),
+      ts_rank(fts, to_tsquery('english', replace(search_text, ' ', ' & '))
+    ) DESC;
+END;
+$$ LANGUAGE plpgsql;
