@@ -32,3 +32,7 @@ To enable extensions in Supabase:
 Go to Database → Extensions in the left sidebar
 pg_trgm – for fuzzy search
 
+SUPABASE CLI.
+supabase login 
+supabase init
+supabase start
