@@ -36,3 +36,12 @@ SUPABASE CLI.
 supabase login 
 supabase init
 supabase start
+
+before supabase db pull
+you need to link project
+
+supabase link --project-ref 
+supabase db pull --schema auth,storage
+//this reset all old data so be careful
+supabase db reset
+
