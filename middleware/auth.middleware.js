@@ -1,7 +1,6 @@
 import { response } from "../utils/common.js";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
+
 import supabase from "../config/supabase.js";
 export const authenticateUser = async (req, res, next) => {
   console.log("req.headers.authorization :>> ", req.headers.authorization);

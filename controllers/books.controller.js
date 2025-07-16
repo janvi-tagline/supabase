@@ -5,6 +5,8 @@ import {
   getBooksFromSupabase,
   requestBookFromSupabase,
 } from "../services/book.service.js";
+import { supabaseUserById } from "../services/user.service.js";
+import supabase from "../config/supabase.js";
 
 export const addBook = async (req, res) => {
   try {
@@ -50,6 +52,13 @@ export const requestBook = async (req, res) => {
       bookId,
       userId,
     });
+
+    const { data: user, error: userError } = await supabaseUserById(userId);
+    const { data: bookRequestEmail, error: bookRequestEmailError } =
+      await supabase.functions.invoke("smooth-responder", {
+        body: { email: user?.email },
+      });
+
     if (error) return response(false, res, 500, error.message);
     return response(true, res, 200, "Book requested successfully");
   } catch (error) {

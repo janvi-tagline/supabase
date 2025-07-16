@@ -6,10 +6,11 @@ import {
   requestBook,
   getBookRequests,
 } from "../controllers/books.controller.js";
+import { authenticateUser } from "../middleware/auth.middleware.js";
 
-booksRouter.post("/add", addBook);
+booksRouter.post("/add",authenticateUser, addBook);
 booksRouter.get("/", getBooks);
-booksRouter.post("/request/:bookId/:userId", requestBook);
-booksRouter.get("/requests", getBookRequests);
+booksRouter.post("/request/:bookId/:userId", authenticateUser, requestBook);
+booksRouter.get("/requests",authenticateUser, getBookRequests);
 
 export default booksRouter;
